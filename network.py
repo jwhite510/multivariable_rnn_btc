@@ -21,7 +21,7 @@ class Data():
                                                 'y_factor2': y_factor2})
 
         # try with only one variable
-        dataframe = pd.DataFrame(index=t, data={'y_predict': y_predict})
+        # dataframe = pd.DataFrame(index=t, data={'y_predict': y_predict})
 
         self.train = dataframe[0:50]
         self.test = dataframe[50:]
@@ -54,14 +54,12 @@ class Data():
 
 
 n_steps = 5
-n_inputs = 1
+n_inputs = 3
 n_neurons = 100
 n_outputs = 1
 time_shift = 2
 
 data_obj = Data()
-x_batch, y_batch = data_obj.next_batch(batch_size=15, input_vec_len=5, time_steps_shifted=2, train_data=data_obj.train)
-
 
 X = tf.placeholder(tf.float32, [None, n_steps, n_inputs])
 y = tf.placeholder(tf.float32, [None, n_steps, n_outputs])
@@ -71,8 +69,6 @@ rnn_outputs, states = tf.nn.dynamic_rnn(cell, X, dtype=tf.float32)
 stacked_rnn_outputs = tf.reshape(rnn_outputs, [-1, n_neurons])
 stacked_outputs = fully_connected(stacked_rnn_outputs, n_outputs, activation_fn=None)
 outputs = tf.reshape(stacked_outputs, [-1, n_steps, n_outputs])
-
-
 
 learning_rate = 0.001
 
@@ -84,23 +80,38 @@ init = tf.global_variables_initializer()
 
 n_iterations = 60000
 batch_size = 10
-
+plt.ion()
 with tf.Session() as sess:
 
     init.run()
     for iteration in range(n_iterations):
-        X_batch, y_batch = data_obj.next_batch(batch_size=15, input_vec_len=n_steps,
+        x_batch, y_batch = data_obj.next_batch(batch_size=15, input_vec_len=n_steps,
                                                time_steps_shifted=time_shift, train_data=data_obj.train)
 
-        # arb_axis = np.arange(0, n_steps+time_shift, 1)
-        # plt.plot(arb_axis[0:n_steps], X_batch[0, :, 0], color='red', alpha=0.5)
-        # plt.plot(arb_axis[time_shift:], y_batch[0, :, 0], color='blue', alpha=0.5)
-        # plt.show()
+
 
         sess.run(training_op, feed_dict={X: x_batch, y: y_batch})
-        if iteration % 100 == 0:
+        if iteration % 10 == 0:
+
             mse = loss.eval(feed_dict={X: x_batch, y: y_batch})
             print(iteration, '\tMSE:', mse)
+            projections = sess.run(outputs, feed_dict={X: x_batch})
+
+
+            arb_axis = np.arange(0, n_steps + time_shift, 1)
+            plt.clf()
+            # plot the inputs
+            for i in range(n_inputs):
+                if i == 0:
+                    plt.plot(arb_axis[0:n_steps], x_batch[0, :, i], color='red', alpha=0.5)
+                else:
+                    plt.plot(arb_axis[0:n_steps], x_batch[0, :, i], color='black', alpha=0.5)
+
+            plt.plot(arb_axis[time_shift:], y_batch[0, :, 0], color='blue', alpha=0.5)
+            plt.plot(arb_axis[time_shift:], projections[0, :, 0], color='orange')
+            plt.pause(0.1)
+
+
 
 
 
