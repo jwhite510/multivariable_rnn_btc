@@ -107,8 +107,9 @@ with tf.Session() as sess:
                 else:
                     plt.plot(arb_axis[0:n_steps], x_batch[0, :, i], color='black', alpha=0.5)
 
-            plt.plot(arb_axis[time_shift:], y_batch[0, :, 0], color='blue', alpha=0.5)
-            plt.plot(arb_axis[time_shift:], projections[0, :, 0], color='orange')
+            plt.plot(arb_axis[time_shift:], y_batch[0, :, 0], color='blue', alpha=0.5, label='true value')
+            plt.plot(arb_axis[time_shift:], projections[0, :, 0], color='orange', label='projected value')
+            plt.legend(loc=2)
             plt.pause(0.1)
 
 
