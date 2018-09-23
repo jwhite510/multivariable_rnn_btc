@@ -3,22 +3,32 @@ from datastorage import RedditData
 
 
 
-redditdata = RedditData(filename='redditdata', overwrite=False)
+redditsubmissions = RedditData(filename='redditsubmissions', overwrite=False)
 
+
+indexmax = 154
 
 # retrieve the data
-submissions = redditdata.retrieve_data(parameter='submission', indexes=(0, 154))
+submissions = redditsubmissions.retrieve_data(parameter='submission', indexes=(0, indexmax))
+submission_times = redditsubmissions.retrieve_data(parameter='submission_time', indexes=(0, indexmax))
 
 
-submission_times = redditdata.retrieve_data(parameter='submission_time', indexes=(0, 154))
+redditcomments = RedditData(filename='redditcomments', overwrite=False)
+comments = redditcomments.retrieve_data(parameter='comment', indexes=(0, indexmax))
+comment_times = redditcomments.retrieve_data(parameter='comment_time', indexes=(0, indexmax))
 
-index = 1
-print(len(submissions))
-exit(0)
+
+
+index = -1
+
+# view the comments
+print(comments[index])
+print(comment_times[index])
+
+# view the submissions
 print(submissions[index])
 print(submission_times[index])
 
-
-
+exit(0)
 
 
