@@ -54,12 +54,14 @@ if __name__ == "__main__":
 
             submissions.append(submission_text)
             submission_times.append(submission_datetime)
-            if len(submissions) > 10:
+            if len(submissions) > 1:
                 submissions = [element.encode('utf-8') for element in submissions]
                 redditdata.append_data(parameter='submission', data=submissions, times=submission_times)
-                print('data was appended')
+                print('data was appended time: {}'.format(str(datetime.datetime.now())))
                 submissions = []
                 submission_times = []
+                
+
 
         except Exception as e:
             print(e)
