@@ -1,7 +1,7 @@
 import praw
 import reddit_credentials
 import tables
-from datastorage import RedditData
+from datastorage import DataCollector
 import datetime
 from multiprocessing import Process
 
@@ -87,13 +87,13 @@ if __name__ == "__main__":
     # the data types that this file will contain
     parameters = []
     parameters.append({'name': 'submission', 'maxlength': 10000})
-    redditsubmissions = RedditData(filename='redditsubmissions', parameters=parameters, overwrite=True,
+    redditsubmissions = DataCollector(filename='redditsubmissions', parameters=parameters, overwrite=True,
                             checklength=True)
 
 
     parameters = []
     parameters.append({'name': 'comment', 'maxlength': 4000})
-    redditcomments = RedditData(filename='redditcomments', parameters=parameters, overwrite=True,
+    redditcomments = DataCollector(filename='redditcomments', parameters=parameters, overwrite=True,
                                    checklength=True)
 
     # start the reddit instance

@@ -3,7 +3,7 @@ import os
 
 
 
-class RedditData():
+class DataCollector():
 
     def __init__(self, filename, parameters=None, overwrite=False, timecharlength=30, checklength=False):
 
