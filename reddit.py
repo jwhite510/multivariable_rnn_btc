@@ -46,8 +46,7 @@ if __name__ == "__main__":
             # print(datetime.datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S'))
             # print('-------------')
 
-
-            submission_text = submission.selftext
+            submission_text = submission.title + '\n\n' + submission.selftext
             submission_timestamp = submission.created_utc
             submission_datetime = datetime.datetime.utcfromtimestamp(submission_timestamp).strftime('%Y-%m-%d %H:%M:%S')
 
