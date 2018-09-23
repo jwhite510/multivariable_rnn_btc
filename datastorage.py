@@ -52,7 +52,8 @@ class RedditData():
 
             for data_entry in data:
                 if len(data_entry) > max_length:
-                    print('data exceeded allowable length')
+                    print('data exceeded allowable length, max:{}, data:{}'.format(max_length,
+                                                                                        len(data_entry)))
 
 
         # append the data
