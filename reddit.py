@@ -48,9 +48,8 @@ def reddit_collect_comments(subreddit, datastorage):
     for comment in subreddit.stream.comments():
 
         try:
-
-            # comment_text = comment.title + '\n\n' + comment.selftext
-            comment_text = comment.body
+            comment_text = comment.submission.title + '\n\n' + comment.body
+            # comment_text = comment.body
             comment_timestamp = comment.created_utc
             comment_datetime = datetime.datetime.utcfromtimestamp(comment_timestamp).strftime('%Y-%m-%d %H:%M:%S')
 
