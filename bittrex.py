@@ -40,8 +40,8 @@ if __name__ == "__main__":
     while True:
 
         try:
-
-            time.sleep(3)
+            # collect price every 5 minutes
+            time.sleep(300)
 
 
             price, price_datetime = pull_data('USDT-BTC')
