@@ -1,19 +1,16 @@
-from datastorage import RedditData
+from datastorage import DataCollector
 
-
-
-
-redditsubmissions = RedditData(filename='redditsubmissions', overwrite=False)
 
 
 indexmax = 154
 
 # retrieve the data
+redditsubmissions = DataCollector(filename='redditsubmissions', overwrite=False)
 submissions = redditsubmissions.retrieve_data(parameter='submission', indexes=(0, indexmax))
 submission_times = redditsubmissions.retrieve_data(parameter='submission_time', indexes=(0, indexmax))
 
 
-redditcomments = RedditData(filename='redditcomments', overwrite=False)
+redditcomments = DataCollector(filename='redditcomments', overwrite=False)
 comments = redditcomments.retrieve_data(parameter='comment', indexes=(0, indexmax))
 comment_times = redditcomments.retrieve_data(parameter='comment_time', indexes=(0, indexmax))
 
@@ -30,5 +27,6 @@ print(submissions[index])
 print(submission_times[index])
 
 exit(0)
+
 
 
