@@ -32,9 +32,8 @@ def reddit_collect_submissions(subreddit, datastorage):
 
 
         except Exception as e:
+            print('Error occured collecting submission')
             print(e)
-            exit(0)
-            print('Error occured')
 
 
 
@@ -48,8 +47,8 @@ def reddit_collect_comments(subreddit, datastorage):
     for comment in subreddit.stream.comments():
 
         try:
-            comment_text = comment.submission.title + '\n\n' + comment.body
-            # comment_text = comment.body
+            # comment_text = comment.submission.title + '\n\n' + comment.body
+            comment_text = comment.body
             comment_timestamp = comment.created_utc
             comment_datetime = datetime.datetime.utcfromtimestamp(comment_timestamp).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -59,7 +58,7 @@ def reddit_collect_comments(subreddit, datastorage):
 
             # print(comments)
 
-            if len(comments) > 1:
+            if len(comments) > 10:
                 comments = [element.encode('utf-8') for element in comments]
 
                 datastorage.append_data(parameter='comment', data=comments, times=comment_times)
@@ -72,9 +71,8 @@ def reddit_collect_comments(subreddit, datastorage):
 
 
         except Exception as e:
+            print('Error occured collecting comment')
             print(e)
-            exit(0)
-            print('Error occured')
 
 
 
@@ -87,13 +85,13 @@ if __name__ == "__main__":
     # the data types that this file will contain
     parameters = []
     parameters.append({'name': 'submission', 'maxlength': 10000})
-    redditsubmissions = DataCollector(filename='redditsubmissions', parameters=parameters, overwrite=True,
+    redditsubmissions = DataCollector(filename='redditsubmissions', parameters=parameters, overwrite=False,
                             checklength=True)
 
 
     parameters = []
     parameters.append({'name': 'comment', 'maxlength': 4000})
-    redditcomments = DataCollector(filename='redditcomments', parameters=parameters, overwrite=True,
+    redditcomments = DataCollector(filename='redditcomments', parameters=parameters, overwrite=False,
                                    checklength=True)
 
     # start the reddit instance

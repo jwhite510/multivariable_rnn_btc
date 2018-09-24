@@ -2,7 +2,7 @@ from datastorage import DataCollector
 
 
 
-indexmax = 154
+indexmax = 999999
 
 # retrieve the data
 redditsubmissions = DataCollector(filename='redditsubmissions', overwrite=False)
@@ -15,7 +15,9 @@ comments = redditcomments.retrieve_data(parameter='comment', indexes=(0, indexma
 comment_times = redditcomments.retrieve_data(parameter='comment_time', indexes=(0, indexmax))
 
 
-
+print(len(comments))
+print(len(submissions))
+exit(0)
 index = -1
 
 # view the comments

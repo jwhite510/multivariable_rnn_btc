@@ -2,21 +2,21 @@ from datastorage import DataCollector
 
 
 
-indexmax = 154
+indexmax = 9999999
 
 # retrieve the data
-redditsubmissions = DataCollector(filename='twittertweets', overwrite=False)
-submissions = redditsubmissions.retrieve_data(parameter='tweet', indexes=(0, indexmax))
-submission_times = redditsubmissions.retrieve_data(parameter='tweet_time', indexes=(0, indexmax))
+twittertweets = DataCollector(filename='twittertweets', overwrite=False)
+tweets = twittertweets.retrieve_data(parameter='tweet', indexes=(0, indexmax))
+tweet_times = twittertweets.retrieve_data(parameter='tweet_time', indexes=(0, indexmax))
 
 
 
 
 
 index = -1
-
-print(submissions[index])
-print(submission_times[index])
+print(len(tweets))
+print(tweets[index])
+print(tweet_times[index])
 
 
 
