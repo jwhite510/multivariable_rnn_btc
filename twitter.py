@@ -53,8 +53,7 @@ class StdOutListener(StreamListener):
 if __name__ == "__main__":
 
     parameters = []
-    # parameters.append({'name': 'tweet', 'maxlength': 10000})
-    parameters.append({'name': 'tweet', 'maxlength': 500})
+    parameters.append({'name': 'tweet', 'maxlength': 4000})
     twittertweets = DataCollector(filename='twittertweets', parameters=parameters, overwrite=True,
                                    checklength=True)
 
