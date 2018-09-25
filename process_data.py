@@ -104,6 +104,10 @@ time_sentiment_average = np.zeros_like(btcprice_times[1:], dtype=float)
 for index, time in enumerate(btcprice_times[1:]):
 
     tweets_from_this_time = tweets_wordcount[tweet_times_np == time]
+    """
+    NEED TO NORMALIZE FOR TIME HERE!!!!!!!!!!!!!!!!!!!!!
+    time steps are not constant
+    """
     time_sentiment_average[index] = np.average(tweets_from_this_time)
 
 
