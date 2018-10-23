@@ -56,12 +56,9 @@ class StdOutListener(StreamListener):
 
 
 
-def initialize_and_run():
+def initialize_and_run(twittertweets):
 
-    parameters = []
-    parameters.append({'name': 'tweet', 'maxlength': 4000})
-    twittertweets = DataCollector(filename='twittertweets', parameters=parameters, overwrite=False,
-                                  checklength=True)
+
 
     # start the twitter instance
     listener = StdOutListener(twittertweets)
@@ -80,11 +77,16 @@ def initialize_and_run():
 
 if __name__ == "__main__":
 
+    parameters = []
+    parameters.append({'name': 'tweet', 'maxlength': 4000})
+    twittertweets = DataCollector(filename='twittertweets', parameters=parameters, overwrite=False,
+                                  checklength=True)
+
     while True:
 
         try:
 
-            initialize_and_run()
+            initialize_and_run(twittertweets)
 
         except Exception as e:
 
