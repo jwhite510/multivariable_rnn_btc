@@ -72,13 +72,13 @@ if __name__ == "__main__":
 
             price, price_datetime = pull_data('USD-ETH')
             print('price: ', price)
-            print('appending tether price at {}'.format(datetime.now()))
+            print('appending ethereum price at {}'.format(datetime.now()))
             ethereumprices.append_data(parameter='ethereumprice', data=[price], times=[price_datetime])
             time.sleep(1)
 
             price, price_datetime = pull_data('USD-BCH')
             print('price: ', price)
-            print('appending tether price at {}'.format(datetime.now()))
+            print('appending bch price at {}'.format(datetime.now()))
             bchprices.append_data(parameter='bchprice', data=[price], times=[price_datetime])
             time.sleep(1)
 
