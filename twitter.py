@@ -5,7 +5,7 @@ import twitter_credentials
 from datastorage import DataCollector
 import json
 import datetime
-
+import time
 
 
 
@@ -55,12 +55,13 @@ class StdOutListener(StreamListener):
 
 
 
-if __name__ == "__main__":
+
+def initialize_and_run():
 
     parameters = []
     parameters.append({'name': 'tweet', 'maxlength': 4000})
     twittertweets = DataCollector(filename='twittertweets', parameters=parameters, overwrite=False,
-                                   checklength=True)
+                                  checklength=True)
 
     # start the twitter instance
     listener = StdOutListener(twittertweets)
@@ -73,6 +74,29 @@ if __name__ == "__main__":
     stream = Stream(auth, listener)
 
     stream.filter(track=['bitcoin'])
+
+
+
+
+if __name__ == "__main__":
+
+    while True:
+
+        try:
+
+            initialize_and_run()
+
+        except Exception as e:
+
+            print('Error Occured')
+            print(e)
+            time.sleep(10)
+
+
+
+
+
+
 
 
 
