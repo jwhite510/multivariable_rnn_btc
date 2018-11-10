@@ -3,28 +3,39 @@ from tensorflow.contrib.layers import fully_connected
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-
+from linearize_and_process import get_linear_data
 
 
 
 class Data():
     def __init__(self):
 
+        # retrieve data
+        globaltime, pricedata = get_linear_data(dt=60)
+
         # generate data set
-        t = np.arange(0, 60, 1)
-        y_predict = np.sin(0.5 * t)
-        y_factor1 = np.sin(0.5 * t - 5)
-        y_factor2 = np.sin(0.5 * t - 3)
+        # t = np.arange(0, 60, 1)
+        # y_predict = np.sin(0.5 * t)
+        # y_factor1 = np.sin(0.5 * t - 5)
+        # y_factor2 = np.sin(0.5 * t - 3)
 
         # y_predict must be listed first, index 0 in the numpy array is the predicted variable
-        dataframe = pd.DataFrame(index=t, data={'y_predict': y_predict, 'y_factor1': y_factor1,
-                                                'y_factor2': y_factor2})
+        dataframe = pd.DataFrame(index=globaltime, data={'y_predict': pricedata['btcprices'],
+                                                         'y_factor1': pricedata['tetherprices'],
+                                                         'y_factor2': pricedata['ethereumprices'],
+                                                         'y_factor3': pricedata['bchprices']
+                                                         })
 
         # try with only one variable
         # dataframe = pd.DataFrame(index=t, data={'y_predict': y_predict})
+        timemax = globaltime[-1]
+        timemin = globaltime[0]
+        duration = timemax - timemin
+        train_test_split = 0.8
+        index_mid = timemin + train_test_split * duration
 
-        self.train = dataframe[0:50]
-        self.test = dataframe[50:]
+        self.train = dataframe[timemin:index_mid]
+        self.test = dataframe[index_mid:timemax]
 
 
     def next_batch(self, batch_size, input_vec_len, time_steps_shifted, train_data):
@@ -47,6 +58,11 @@ class Data():
 
         y = y.reshape(np.shape(y)[0], np.shape(y)[1], 1)
 
+        # normalize the values
+        print(np.shape(y))
+        print(np.shape(x))
+        exit(0)
+
         return x, y
 
 
@@ -54,7 +70,7 @@ class Data():
 
 
 n_steps = 5
-n_inputs = 3
+n_inputs = 4
 n_neurons = 100
 n_outputs = 1
 time_shift = 2
