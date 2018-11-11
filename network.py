@@ -88,22 +88,7 @@ class Data():
         self.test = dataframe[index_mid:timemax]
 
 
-    def next_batch(self, batch_size, input_vec_len, time_steps_shifted, train_data):
-
-        ########################
-        ########################
-        ########################
-        ########################
-        ########################
-        # dont forget to get rid of this!!!!!!!!!!!!!!!!
-        np.random.seed(998)
-        ########################
-        ########################
-        ########################
-        ########################
-        ########################
-        ########################
-
+    def next_batch(self, batch_size, input_vec_len, time_steps_shifted, train_data, plotting=False):
 
         # pull a bunch of random samples
         rand_start = np.random.randint(0, len(train_data) - (input_vec_len+time_steps_shifted), size=batch_size)
@@ -128,16 +113,6 @@ class Data():
         input_x_axis = np.array(range(input_vec_len))
         output_x_axis = input_x_axis + time_steps_shifted
 
-        fig = plt.figure()
-        gs = fig.add_gridspec(3,2)
-        ax = fig.add_subplot(gs[0,:])
-        ax.plot(input_x_axis, x[0, :, 0])
-        # ax.plot(input_x_axis, x[0, :, 1])
-        # ax.plot(input_x_axis, x[0, :, 2])
-        # ax.plot(input_x_axis, x[0, :, 3])
-        ax.plot(output_x_axis, y[0, :, 0], linestyle='dashed', color='blue')
-
-
         # normalize the input values between 0 and 1
         x_new, x_scale_mat = normalize_values(x)
 
@@ -151,37 +126,38 @@ class Data():
         # scale the output with the same factors as the input
         y_new, y_scale_mat = normalize_values(y, scaler=y_norm_mat)
 
+        if plotting:
 
-        ax = fig.add_subplot(gs[1, :])
-        ax.plot(input_x_axis, x_new[0, :, 0])
-        # ax.plot(input_x_axis, x_new[0, :, 1])
-        # ax.plot(input_x_axis, x_new[0, :, 2])
-        # ax.plot(input_x_axis, x_new[0, :, 3])
-        ax.plot(output_x_axis, y_new[0, :, 0], linestyle='dashed', color='blue')
+            fig = plt.figure()
+            gs = fig.add_gridspec(3, 2)
+            ax = fig.add_subplot(gs[0, :])
+            ax.plot(input_x_axis, x[0, :, 0])
+            ax.plot(input_x_axis, x[0, :, 1])
+            ax.plot(input_x_axis, x[0, :, 2])
+            ax.plot(input_x_axis, x[0, :, 3])
+            ax.plot(output_x_axis, y[0, :, 0], linestyle='dashed', color='blue')
 
-        x_rescaled = rescale(values=x_new, scalemat=x_scale_mat)
-        y_rescaled = rescale(values=y_new, scalemat=y_norm_mat)
+            ax = fig.add_subplot(gs[1, :])
+            ax.plot(input_x_axis, x_new[0, :, 0])
+            ax.plot(input_x_axis, x_new[0, :, 1])
+            ax.plot(input_x_axis, x_new[0, :, 2])
+            ax.plot(input_x_axis, x_new[0, :, 3])
+            ax.plot(output_x_axis, y_new[0, :, 0], linestyle='dashed', color='blue')
 
-        ax = fig.add_subplot(gs[2, :])
-        ax.plot(input_x_axis, x_rescaled[0, :, 0])
-        # ax.plot(input_x_axis, x_rescaled[0, :, 1])
-        # ax.plot(input_x_axis, x_rescaled[0, :, 2])
-        # ax.plot(input_x_axis, x_rescaled[0, :, 3])
-        ax.plot(output_x_axis, y_rescaled[0, :, 0], linestyle='dashed', color='blue')
+            x_rescaled = rescale(values=x_new, scalemat=x_scale_mat)
+            y_rescaled = rescale(values=y_new, scalemat=y_norm_mat)
 
+            ax = fig.add_subplot(gs[2, :])
+            ax.plot(input_x_axis, x_rescaled[0, :, 0])
+            ax.plot(input_x_axis, x_rescaled[0, :, 1])
+            ax.plot(input_x_axis, x_rescaled[0, :, 2])
+            ax.plot(input_x_axis, x_rescaled[0, :, 3])
+            ax.plot(output_x_axis, y_rescaled[0, :, 0], linestyle='dashed', color='blue')
 
+            plt.ioff()
+            plt.show()
 
-
-
-
-
-
-        plt.ioff()
-        plt.show()
-        exit(0)
-
-
-        return x, y
+        return x_new, y_new
 
 
 
