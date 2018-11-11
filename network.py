@@ -5,10 +5,16 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from linearize_and_process import get_linear_data
 
-def normalize_values(values):
+def normalize_values(values, scaler=None):
 
-    max_vals = np.expand_dims(np.max(values, axis=1), axis=1)
-    offset = np.expand_dims(np.min(values, axis=1), axis=1)
+    if scaler:
+        max_vals = scaler['max_vals']
+        offset = scaler['offset']
+        pass
+
+    else:
+        max_vals = np.expand_dims(np.max(values, axis=1), axis=1)
+        offset = np.expand_dims(np.min(values, axis=1), axis=1)
 
     numerator = (values - offset)
     denom = (max_vals - offset)
@@ -131,8 +137,20 @@ class Data():
         # ax.plot(input_x_axis, x[0, :, 3])
         ax.plot(output_x_axis, y[0, :, 0], linestyle='dashed', color='blue')
 
+
+        # normalize the input values between 0 and 1
         x_new, x_scale_mat = normalize_values(x)
-        y_new, y_scale_mat = normalize_values(y)
+
+        # take the scale values from the input to use on the output for training
+        offset_y = np.expand_dims(x_scale_mat['offset'][:,:,0], axis=1)
+        max_vals_y = np.expand_dims(x_scale_mat['max_vals'][:,:,0], axis=1)
+        y_norm_mat = {}
+        y_norm_mat['offset'] = offset_y
+        y_norm_mat['max_vals'] = max_vals_y
+
+        # scale the output with the same factors as the input
+        y_new, y_scale_mat = normalize_values(y, scaler=y_norm_mat)
+
 
         ax = fig.add_subplot(gs[1, :])
         ax.plot(input_x_axis, x_new[0, :, 0])
@@ -142,7 +160,7 @@ class Data():
         ax.plot(output_x_axis, y_new[0, :, 0], linestyle='dashed', color='blue')
 
         x_rescaled = rescale(values=x_new, scalemat=x_scale_mat)
-        y_rescaled = rescale(values=y_new, scalemat=y_scale_mat)
+        y_rescaled = rescale(values=y_new, scalemat=y_norm_mat)
 
         ax = fig.add_subplot(gs[2, :])
         ax.plot(input_x_axis, x_rescaled[0, :, 0])
