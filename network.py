@@ -60,7 +60,22 @@ class Data():
 
 
     def next_batch(self, batch_size, input_vec_len, time_steps_shifted, train_data):
+
+        ########################
+        ########################
+        ########################
+        ########################
+        ########################
+        # dont forget to get rid of this!!!!!!!!!!!!!!!!
         np.random.seed(998)
+        ########################
+        ########################
+        ########################
+        ########################
+        ########################
+        ########################
+
+
         # pull a bunch of random samples
         rand_start = np.random.randint(0, len(train_data) - (input_vec_len+time_steps_shifted), size=batch_size)
 
