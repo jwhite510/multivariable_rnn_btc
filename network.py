@@ -5,6 +5,27 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from linearize_and_process import get_linear_data
 
+def scale_values(values):
+
+    max_vals = np.expand_dims(np.max(values, axis=1), axis=1)
+    offset = np.expand_dims(np.min(values, axis=1), axis=1)
+
+    numerator = (values - offset)
+    denom = (max_vals - offset)
+
+    # correct for params that dont change in time by setting them to 1/2
+    constant_value_indexes = np.repeat(denom == 0, np.shape(numerator)[1], axis=1)
+    numerator[constant_value_indexes] = 1
+    denom[denom == 0] = 2
+    new_values = numerator / denom
+
+    return new_values
+
+
+
+
+
+
 
 
 class Data():
@@ -39,6 +60,7 @@ class Data():
 
 
     def next_batch(self, batch_size, input_vec_len, time_steps_shifted, train_data):
+        np.random.seed(998)
         # pull a bunch of random samples
         rand_start = np.random.randint(0, len(train_data) - (input_vec_len+time_steps_shifted), size=batch_size)
 
@@ -59,12 +81,9 @@ class Data():
         y = y.reshape(np.shape(y)[0], np.shape(y)[1], 1)
 
         # normalize the values
-        print('time_steps_shifted: ', time_steps_shifted)
-        print('np.shape(x):', np.shape(x))
-        print('np.shape(y):', np.shape(y))
-        print('input_vec_len: ', input_vec_len)
         input_x_axis = np.array(range(input_vec_len))
         output_x_axis = input_x_axis + time_steps_shifted
+
         fig = plt.figure()
         gs = fig.add_gridspec(2,2)
         ax = fig.add_subplot(gs[0,:])
@@ -74,15 +93,20 @@ class Data():
         ax.plot(input_x_axis, x[0, :, 3])
         ax.plot(output_x_axis, y[0, :, 0], linestyle='dashed', color='blue')
 
-        # normalize the values
+        x_new = scale_values(x)
+        y_new = scale_values(y)
 
-
-
-
+        ax = fig.add_subplot(gs[1, :])
+        ax.plot(input_x_axis, x_new[0, :, 0])
+        ax.plot(input_x_axis, x_new[0, :, 1])
+        ax.plot(input_x_axis, x_new[0, :, 2])
+        ax.plot(input_x_axis, x_new[0, :, 3])
+        ax.plot(output_x_axis, y_new[0, :, 0], linestyle='dashed', color='blue')
 
 
         plt.ioff()
         plt.show()
+        exit(0)
 
 
         return x, y
@@ -123,7 +147,7 @@ with tf.Session() as sess:
 
     init.run()
     for iteration in range(n_iterations):
-        x_batch, y_batch = data_obj.next_batch(batch_size=15, input_vec_len=n_steps,
+        x_batch, y_batch = data_obj.next_batch(batch_size=3, input_vec_len=n_steps,
                                                time_steps_shifted=time_shift, train_data=data_obj.train)
 
 
