@@ -235,20 +235,27 @@ plt.ion()
 _, training_axis = plt.subplots()
 _, test_axis = plt.subplots()
 
+
+
+train_mse_tb = tf.summary.scalar("train_mse", loss)
+saver = tf.train.Saver()
+
 with tf.Session() as sess:
 
     init.run()
+    writer = tf.summary.FileWriter("./tensorboard_graph/" + 'model')
+
     for iteration in range(n_iterations):
 
         # retrieved data
-        x_batch, y_batch = data_obj.next_batch(batch_size=3, input_vec_len=n_steps,
+        x_batch, y_batch = data_obj.next_batch(batch_size=100, input_vec_len=n_steps,
                                                time_steps_shifted=time_shift, train_data=data_obj.train)
 
         # train the model
         sess.run(training_op, feed_dict={X: x_batch, y: y_batch})
 
         # evaluate accuracy
-        if iteration % 1 == 0:
+        if iteration % 100 == 0:
 
             mse = loss.eval(feed_dict={X: x_batch, y: y_batch})
             print(iteration, '\tMSE:', mse)
@@ -272,24 +279,14 @@ with tf.Session() as sess:
             test_data = data_obj.test_data()
 
             # plot the bitcoin data
+            test_axis.cla()
             test_axis.plot(test_data['unix_times'], test_data['variables'][:, 0], color='yellow')
-
             plot_projection(start_index=400, axis=test_axis)
             plot_projection(start_index=800, axis=test_axis)
             plot_projection(start_index=1200, axis=test_axis)
 
+            summ = sess.run(train_mse_tb, feed_dict={X: x_batch, y: y_batch})
+            writer.add_summary(summ, global_step=iteration + 1)
 
-
-
-            plt.ioff()
-            plt.show()
-
-            exit(0)
-
-            test_axis.plot()
-
-
-
-
-            plt.pause(0.1)
+            plt.pause(0.001)
 
