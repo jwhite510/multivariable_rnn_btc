@@ -59,9 +59,31 @@ class Data():
         y = y.reshape(np.shape(y)[0], np.shape(y)[1], 1)
 
         # normalize the values
-        print(np.shape(y))
-        print(np.shape(x))
-        exit(0)
+        print('time_steps_shifted: ', time_steps_shifted)
+        print('np.shape(x):', np.shape(x))
+        print('np.shape(y):', np.shape(y))
+        print('input_vec_len: ', input_vec_len)
+        input_x_axis = np.array(range(input_vec_len))
+        output_x_axis = input_x_axis + time_steps_shifted
+        fig = plt.figure()
+        gs = fig.add_gridspec(2,2)
+        ax = fig.add_subplot(gs[0,:])
+        ax.plot(input_x_axis, x[0, :, 0])
+        ax.plot(input_x_axis, x[0, :, 1])
+        ax.plot(input_x_axis, x[0, :, 2])
+        ax.plot(input_x_axis, x[0, :, 3])
+        ax.plot(output_x_axis, y[0, :, 0], linestyle='dashed', color='blue')
+
+        # normalize the values
+
+
+
+
+
+
+        plt.ioff()
+        plt.show()
+
 
         return x, y
 
@@ -69,11 +91,11 @@ class Data():
 
 
 
-n_steps = 5
+n_steps = 50
 n_inputs = 4
 n_neurons = 100
 n_outputs = 1
-time_shift = 2
+time_shift = 20
 
 data_obj = Data()
 
