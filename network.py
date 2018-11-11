@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from linearize_and_process import get_linear_data
 
-def scale_values(values):
+def normalize_values(values):
 
     max_vals = np.expand_dims(np.max(values, axis=1), axis=1)
     offset = np.expand_dims(np.min(values, axis=1), axis=1)
@@ -19,12 +19,35 @@ def scale_values(values):
     denom[denom == 0] = 2
     new_values = numerator / denom
 
-    return new_values
+    scale_mat = {}
+    scale_mat['offset'] = offset
+    scale_mat['max_vals'] = max_vals
+
+    return new_values, scale_mat
 
 
+def rescale(values, scalemat):
 
+    # initialize output vector
+    output_values = np.ones_like(values)
 
+    # add the constant values
+    indexes_2d = scalemat['offset'] == scalemat['max_vals']
+    sample_time_length =  np.shape(values)[1]
+    indexes_3d = np.repeat(indexes_2d, sample_time_length, axis=1)
+    output_values[indexes_3d] = np.repeat(scalemat['max_vals'], sample_time_length, axis=1)[indexes_3d]
 
+    # add the changing values
+    indexes_2d_not_constant = scalemat['offset'] != scalemat['max_vals']
+    indexes_3d_not_constant = np.repeat(indexes_2d_not_constant, sample_time_length, axis=1)
+    # multiply by the magnitude
+    magnitude =  np.repeat((scalemat['max_vals'] - scalemat['offset']), sample_time_length, axis=1)
+    output_values[indexes_3d_not_constant] = values[indexes_3d_not_constant] * magnitude[indexes_3d_not_constant]
+    # add the offset
+    offset = np.repeat((scalemat['offset']), sample_time_length, axis=1)
+    output_values[indexes_3d_not_constant] = output_values[indexes_3d_not_constant] +  offset[indexes_3d_not_constant]
+
+    return output_values
 
 
 
@@ -100,23 +123,39 @@ class Data():
         output_x_axis = input_x_axis + time_steps_shifted
 
         fig = plt.figure()
-        gs = fig.add_gridspec(2,2)
+        gs = fig.add_gridspec(3,2)
         ax = fig.add_subplot(gs[0,:])
         ax.plot(input_x_axis, x[0, :, 0])
-        ax.plot(input_x_axis, x[0, :, 1])
-        ax.plot(input_x_axis, x[0, :, 2])
-        ax.plot(input_x_axis, x[0, :, 3])
+        # ax.plot(input_x_axis, x[0, :, 1])
+        # ax.plot(input_x_axis, x[0, :, 2])
+        # ax.plot(input_x_axis, x[0, :, 3])
         ax.plot(output_x_axis, y[0, :, 0], linestyle='dashed', color='blue')
 
-        x_new = scale_values(x)
-        y_new = scale_values(y)
+        x_new, x_scale_mat = normalize_values(x)
+        y_new, y_scale_mat = normalize_values(y)
 
         ax = fig.add_subplot(gs[1, :])
         ax.plot(input_x_axis, x_new[0, :, 0])
-        ax.plot(input_x_axis, x_new[0, :, 1])
-        ax.plot(input_x_axis, x_new[0, :, 2])
-        ax.plot(input_x_axis, x_new[0, :, 3])
+        # ax.plot(input_x_axis, x_new[0, :, 1])
+        # ax.plot(input_x_axis, x_new[0, :, 2])
+        # ax.plot(input_x_axis, x_new[0, :, 3])
         ax.plot(output_x_axis, y_new[0, :, 0], linestyle='dashed', color='blue')
+
+        x_rescaled = rescale(values=x_new, scalemat=x_scale_mat)
+        y_rescaled = rescale(values=y_new, scalemat=y_scale_mat)
+
+        ax = fig.add_subplot(gs[2, :])
+        ax.plot(input_x_axis, x_rescaled[0, :, 0])
+        # ax.plot(input_x_axis, x_rescaled[0, :, 1])
+        # ax.plot(input_x_axis, x_rescaled[0, :, 2])
+        # ax.plot(input_x_axis, x_rescaled[0, :, 3])
+        ax.plot(output_x_axis, y_rescaled[0, :, 0], linestyle='dashed', color='blue')
+
+
+
+
+
+
 
 
         plt.ioff()
