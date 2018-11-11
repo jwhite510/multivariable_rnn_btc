@@ -5,6 +5,38 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from linearize_and_process import get_linear_data
 
+
+def plot_projection(start_index, axis):
+
+    axis.plot(test_data['unix_times'][start_index:start_index + n_steps],
+                   test_data['variables'][start_index:start_index + n_steps, 0], color='red')
+
+    input = np.expand_dims(test_data['variables'][start_index:start_index + n_steps, :], axis=0)
+
+    output = np.squeeze(project(input))
+    project_time = test_data['unix_times'][start_index + time_shift:start_index + n_steps + time_shift]
+    axis.plot(project_time, output, color='orange')
+
+
+
+def project(x):
+
+    x_new, x_scale_mat = normalize_values(x)
+    offset_y = np.expand_dims(x_scale_mat['offset'][:, :, 0], axis=1)
+    max_vals_y = np.expand_dims(x_scale_mat['max_vals'][:, :, 0], axis=1)
+    y_norm_mat = {}
+    y_norm_mat['offset'] = offset_y
+    y_norm_mat['max_vals'] = max_vals_y
+
+    # predict y
+    y_predicted = sess.run(outputs, feed_dict={X: x_new})
+
+    y_rescaled = rescale(values=y_predicted, scalemat=y_norm_mat)
+
+    return y_rescaled
+
+
+
 def normalize_values(values, scaler=None):
 
     if scaler:
@@ -160,10 +192,19 @@ class Data():
         return x_new, y_new
 
 
+    def test_data(self):
+        test_data = {}
+        test_data['unix_times'] = self.test.index.values
+        test_data['variables'] = np.array(self.test)
+        return test_data
 
 
 
-n_steps = 50
+
+
+
+
+n_steps = 300
 n_inputs = 4
 n_neurons = 100
 n_outputs = 1
@@ -191,47 +232,64 @@ init = tf.global_variables_initializer()
 n_iterations = 60000
 batch_size = 10
 plt.ion()
+_, training_axis = plt.subplots()
+_, test_axis = plt.subplots()
+
 with tf.Session() as sess:
 
     init.run()
     for iteration in range(n_iterations):
+
+        # retrieved data
         x_batch, y_batch = data_obj.next_batch(batch_size=3, input_vec_len=n_steps,
                                                time_steps_shifted=time_shift, train_data=data_obj.train)
 
-
-
+        # train the model
         sess.run(training_op, feed_dict={X: x_batch, y: y_batch})
-        if iteration % 10 == 0:
+
+        # evaluate accuracy
+        if iteration % 1 == 0:
 
             mse = loss.eval(feed_dict={X: x_batch, y: y_batch})
             print(iteration, '\tMSE:', mse)
             projections = sess.run(outputs, feed_dict={X: x_batch})
 
-
             arb_axis = np.arange(0, n_steps + time_shift, 1)
-            plt.clf()
+            training_axis.cla()
             # plot the inputs
             for i in range(n_inputs):
                 if i == 0:
-                    plt.plot(arb_axis[0:n_steps], x_batch[0, :, i], color='red', alpha=0.5)
+                    training_axis.plot(arb_axis[0:n_steps], x_batch[0, :, i], color='red', alpha=0.5)
                 else:
-                    plt.plot(arb_axis[0:n_steps], x_batch[0, :, i], color='black', alpha=0.5)
+                    training_axis.plot(arb_axis[0:n_steps], x_batch[0, :, i], color='black', alpha=0.5)
 
-            plt.plot(arb_axis[time_shift:], y_batch[0, :, 0], color='blue', alpha=0.5, label='true value')
-            plt.plot(arb_axis[time_shift:], projections[0, :, 0], color='orange', label='projected value')
-            plt.legend(loc=2)
+            training_axis.plot(arb_axis[time_shift:], y_batch[0, :, 0], color='blue', alpha=0.5, label='true value')
+            training_axis.plot(arb_axis[time_shift:], projections[0, :, 0], color='orange', label='projected value')
+            training_axis.legend(loc=2)
+
+
+            # evaluate on the test data
+            test_data = data_obj.test_data()
+
+            # plot the bitcoin data
+            test_axis.plot(test_data['unix_times'], test_data['variables'][:, 0], color='yellow')
+
+            plot_projection(start_index=400, axis=test_axis)
+            plot_projection(start_index=800, axis=test_axis)
+            plot_projection(start_index=1200, axis=test_axis)
+
+
+
+
+            plt.ioff()
+            plt.show()
+
+            exit(0)
+
+            test_axis.plot()
+
+
+
+
             plt.pause(0.1)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
