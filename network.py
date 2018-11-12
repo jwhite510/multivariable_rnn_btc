@@ -6,16 +6,18 @@ import pandas as pd
 from linearize_and_process import get_linear_data
 
 
-def plot_projection(start_index, axis):
+def plot_projection(start_index, axis, data):
 
-    axis.plot(test_data['unix_times'][start_index:start_index + n_steps],
-                   test_data['variables'][start_index:start_index + n_steps, 0], color='red')
+    axis.plot(data['unix_times'][start_index:start_index + n_steps],
+                   data['variables'][start_index:start_index + n_steps, 0], color='red', alpha=0.5, linestyle='dashed')
 
-    input = np.expand_dims(test_data['variables'][start_index:start_index + n_steps, :], axis=0)
+    input = np.expand_dims(data['variables'][start_index:start_index + n_steps, :], axis=0)
 
     output = np.squeeze(project(input))
-    project_time = test_data['unix_times'][start_index + time_shift:start_index + n_steps + time_shift]
-    axis.plot(project_time, output, color='orange')
+    project_time = data['unix_times'][start_index + time_shift:start_index + n_steps + time_shift]
+    axis.plot(project_time, output, color='red')
+    axis.plot(project_time[-time_shift:], output[-time_shift:], color='orange', label='projection')
+
 
 
 
@@ -198,17 +200,17 @@ class Data():
         test_data['variables'] = np.array(self.test)
         return test_data
 
-
-
-
-
-
+    def sequential_train_data(self):
+        train_data = {}
+        train_data['unix_times'] = self.train.index.values
+        train_data['variables'] = np.array(self.train)
+        return train_data
 
 n_steps = 300
 n_inputs = 4
 n_neurons = 100
 n_outputs = 1
-time_shift = 20
+time_shift = 150
 
 data_obj = Data()
 
@@ -234,16 +236,17 @@ batch_size = 10
 plt.ion()
 _, training_axis = plt.subplots()
 _, test_axis = plt.subplots()
+_, seq_train_axis = plt.subplots()
 
 
-
+modelname = 'test1'
 train_mse_tb = tf.summary.scalar("train_mse", loss)
 saver = tf.train.Saver()
 
 with tf.Session() as sess:
 
     init.run()
-    writer = tf.summary.FileWriter("./tensorboard_graph/" + 'model')
+    writer = tf.summary.FileWriter("./tensorboard_graph/" + modelname)
 
     for iteration in range(n_iterations):
 
@@ -278,15 +281,43 @@ with tf.Session() as sess:
             # evaluate on the test data
             test_data = data_obj.test_data()
 
-            # plot the bitcoin data
+            # plot for the test data
             test_axis.cla()
-            test_axis.plot(test_data['unix_times'], test_data['variables'][:, 0], color='yellow')
-            plot_projection(start_index=400, axis=test_axis)
-            plot_projection(start_index=800, axis=test_axis)
-            plot_projection(start_index=1200, axis=test_axis)
+            test_axis.set_title('test set')
+            max_plot_index = 1600
+            min_plot_index = 0
+            test_axis.plot(test_data['unix_times'][min_plot_index:max_plot_index],
+                           test_data['variables'][min_plot_index:max_plot_index, 0], color='blue')
+            # plot
+            plot_projection(start_index=50, axis=test_axis, data=test_data)
+            plot_projection(start_index=600, axis=test_axis, data=test_data)
+            plot_projection(start_index=1200, axis=test_axis, data=test_data)
+            test_axis.legend()
 
+
+            # evaluate on the train data
+            train_data = data_obj.sequential_train_data()
+
+            # plot for the train data
+            seq_train_axis.cla()
+            seq_train_axis.set_title('train set')
+            max_plot_index = 1600
+            min_plot_index = 0
+            seq_train_axis.plot(train_data['unix_times'][min_plot_index:max_plot_index],
+                                train_data['variables'][min_plot_index:max_plot_index, 0], color='blue')
+            # plot
+            plot_projection(start_index=50, axis=seq_train_axis, data=train_data)
+            plot_projection(start_index=600, axis=seq_train_axis, data=train_data)
+            plot_projection(start_index=1200, axis=seq_train_axis, data=train_data)
+            seq_train_axis.legend()
+
+            # update plots
+            plt.pause(0.001)
+
+            # add to tensorboard log
             summ = sess.run(train_mse_tb, feed_dict={X: x_batch, y: y_batch})
             writer.add_summary(summ, global_step=iteration + 1)
 
-            plt.pause(0.001)
+            # save
+            saver.save(sess, "models/" + modelname + ".ckpt")
 
